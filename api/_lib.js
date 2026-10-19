@@ -18,9 +18,9 @@ export function configured() {
   return !!(process.env.GITHUB_TOKEN && process.env.KEY_SECRET && process.env.JOIN_CODE);
 }
 
-export function keyFor(id) {
-  return crypto.createHmac('sha256', process.env.KEY_SECRET).update('agent:' + id).digest('hex').slice(0, 40);
-}
+import {keyFor as kf, sigFor} from '../scripts/sig.mjs';
+export {sigFor};
+export function keyFor(id) { return kf(process.env.KEY_SECRET, id); }
 
 export function same(a, b) {
   const x = Buffer.from(String(a || '')), y = Buffer.from(String(b || ''));

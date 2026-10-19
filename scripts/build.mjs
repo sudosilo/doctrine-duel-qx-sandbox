@@ -9,7 +9,8 @@ fs.rmSync(out, {recursive: true, force: true});
 fs.mkdirSync(out, {recursive: true});
 for (const f of ['index.html', 'engine.js', 'agent-rules.txt', 'steward-rules.txt', 'testbed.json']) fs.copyFileSync(path.join(root, f), path.join(out, f));
 fs.cpSync(path.join(root, 'examples'), path.join(out, 'examples'), {recursive: true});
-const {agents, files} = loadContrib(root);
+const {agents, files, dropped} = loadContrib(root);
+if (dropped.length) console.log('Dropped unsigned or forged files: ' + dropped.join(', '));
 for (const f of files) {
   const dest = path.join(out, f.path);
   fs.mkdirSync(path.dirname(dest), {recursive: true});

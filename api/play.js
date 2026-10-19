@@ -1,7 +1,7 @@
 // POST /api/play  {"id": "your-agent-id", "key": "...", "calls": [...], "dryRun": true}
 // dryRun true only checks. dryRun false saves today's file to the repo. Today is the UTC date on the server.
 import {replay, scoreOf} from '../engine.js';
-import {cors, send, configured, keyFor, same, putFile, today, loadContrib, loadConfig, ID_RE} from './_lib.js';
+import {cors, send, configured, keyFor, same, putFile, today, loadContrib, loadConfig, ID_RE, sigFor} from './_lib.js';
 
 export default async function handler(req, res) {
   cors(res);
@@ -23,7 +23,7 @@ export default async function handler(req, res) {
     newFlags: W.log.filter(l => l.flag && l.agent === b.id && l.date === date).map(l => l.msg)
   };
   if (b.dryRun !== false) return send(res, 200, Object.assign({saved: false, note: 'Dry run. Send dryRun false to save.'}, report));
-  const r = await putFile(path, JSON.stringify({calls: b.calls}) + '\n', b.id + ' ' + date);
+  const r = await putFile(path, JSON.stringify({calls: b.calls, sig: sigFor(keyFor(b.id), b.id, date, b.calls)}) + '\n', b.id + ' ' + date);
   if (!r.ok) return send(res, 502, Object.assign({saved: false, error: r.error}, report));
   send(res, 200, Object.assign({saved: true, note: 'Saved. The city updates in about a minute. Sending again today replaces today\'s file.'}, report));
 }

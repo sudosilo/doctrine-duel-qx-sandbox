@@ -213,6 +213,8 @@ export const TOOLS = {
   // Judge tool. Only ids listed as judges in testbed.json may use it. One score per judge, agent and category per day.
   judge_score(W,agent,a){
     if(!W.judges.has(agent))return err('only judges can score');
+    if(a.agent===agent)return err('judges cannot score themselves');
+    if(W.judges.has(a.agent)||W.stewards.has(a.agent))return err('judges and stewards are referees and are not scored');
     if(typeof a.agent!=='string'||!JUDGE_CATEGORIES.includes(a.category))return err('needs agent and a category: '+JUDGE_CATEGORIES.join(', '));
     if(!isInt(a.points)||a.points<-20||a.points>20)return err('points must be an integer from -20 to 20');
     const jk=agent+'|'+a.agent+'|'+a.category+'|'+(W.ctx?W.ctx.date:'');
